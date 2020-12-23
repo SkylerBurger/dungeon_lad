@@ -5,6 +5,11 @@ from discord.ext import commands
 
 class CypherSystem(commands.Cog):
     def __init__(self, client):
+        """Instantiates a CypherSystem object.
+
+        Args:
+            client (discord.ext.commands.Bot): The bot the Class/Cog is being added to.
+        """
         self.client = client
     
     @commands.command()
@@ -20,7 +25,6 @@ class CypherSystem(commands.Cog):
           /cy effort 2 bonus 1
           /cy shift 1 assets 2
           /cy bonuses 1 asset 1 effort 2 shifts 1
-
         """
         player = str(ctx.message.author)
         name = player[:-5]
@@ -40,9 +44,25 @@ class CypherSystem(commands.Cog):
         await ctx.message.channel.send(succeeds + roll_summary + utilized)
 
     def roll_d20(self):
+        """Simulates rolling a d20 die.
+
+        Returns:
+            (int): An integer between 1-20 (inclusive) representing the roll of the die.
+        """
         return random.randint(1, 20)
 
     def calculate_success(self, roll, effort, assets, shift):
+        """Calculates the success level of a task based on the Cypher Systems engine.
+
+        Args:
+            roll (int): Represents the roll total, raw roll + any bonuses.
+            effort (int): Represents the level(s) of effort used on the task.
+            assets (int): Represents the number of assets available for the task.
+            shift (int): Represents the number of shifts available for the task.
+
+        Returns:
+            success_level (int): Represents the success level achieved for a task.
+        """
         success_level = roll // 3
         success_level += effort
         success_level += assets
@@ -52,6 +72,18 @@ class CypherSystem(commands.Cog):
         return success_level
 
     def parse_cypher(self, content):
+        """Parses a Cypher System command received by the bot.
+
+        Args:
+            content (str): The text content of the message the bot received with the command.
+
+        Returns:
+            tuple(effort, assets, bonus, shift):
+                effort (int): Represents the intended level(s) of effort to apply to the task.
+                assets (int): Represents the number of assets available for the task.
+                bonus  (int): Represents the number of bonuses to apply to the roll.
+                shift (int): Represents the number of shifts to apply to the task.
+        """
         effort = 0
         assets = 0
         bonus = 0
@@ -72,4 +104,9 @@ class CypherSystem(commands.Cog):
 
 
 def setup(client):
+    """Allows a Bot from discord.ext.commands to add CypherSystem as a cog.
+
+    Args:
+        client (discord.ext.commands.Bot): The bot to add the Cog to.
+    """
     client.add_cog(CypherSystem(client))
