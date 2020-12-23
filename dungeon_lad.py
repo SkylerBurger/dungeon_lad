@@ -45,47 +45,66 @@ class DungeonLad(discord.Client):
         with open('characters.json', 'w') as file:
             json.dump(self.characters, file)
 
+    async def cypher_system(self, name, message):
+        effort, assets, bonus, shift = self.parse_cypher(message.content)
+
+        if bonus > 2 or assets > 2:
+            await message.channel.send('Neither bonuses nor assets can exceed 2')
+            return
+        raw_roll = self.roll_d20()
+        final_roll = raw_roll + bonus
+        success_level = self.calculate_success(final_roll, effort, assets, shift)
+        succeeds = f'**{name}** succeeds up to difficulty **level {success_level}**\n'
+        roll_summary = f'`Roll: {final_roll} (raw {raw_roll} + bonus {bonus})`\n'
+        utilized = f'`Success Level: {success_level} (roll {final_roll // 3} + effort {effort} + assets {assets} + shifts {shift})`' 
+        await message.channel.send(succeeds + roll_summary + utilized)
+
+    async def add_name(self, player, name, message):
+        character_name = ' '.join(message.content.split()[1:])
+        self.characters[player] = character_name
+        self.save_characters()
+        await message.channel.send(f'**{name}** registered as **{character_name}**')
+
+    async def report_name(self, player, name, message):
+        if name == player[:-5]:
+            await message.channel.send(f'**{name}** does not have a character name registered')
+        else:
+            await message.channel.send(f'**{player[:-5]}** is registered as **{name}**')
+
+    async def remove_name(self, player, message):
+        character = self.characters.get(player)
+        if character:
+            del self.characters[player]
+            self.save_characters()
+            await message.channel.send(f'**{player}** no longer registered as **{character}**')
+        else:
+            await message.channel.send(f'No character registered to **{player}**')
+
     async def on_ready(self):
         print(f'Logged on as {self.user}')
 
     async def on_message(self, message):
         if message.author == self.user:
             return
+        player = str(message.author)
+        name = self.characters.get(player, player[:-5]);
+        
+        command = lambda *x: any([message.content.startswith(y) for y in x])
 
-        name = self.characters.get(str(message.author), str(message.author));
+        if command('/cypher', '/cy'):
+            await self.cypher_system(name, message)
 
-        router = lambda *x: any([message.content.startswith(y) for y in x])
-
-        if router('/cypher', '/cy'):
-            effort, assets, bonus, shift = self.parse_cypher(message.content)
-
-            if bonus > 2 or assets > 2:
-                await message.channel.send('Neither bonuses nor assets can exceed 2.')
-                return
-            raw_roll = self.roll_d20()
-            final_roll = raw_roll + bonus
-            success_level = self.calculate_success(final_roll, effort, assets, bonus)
-            succeeds = f'**{name}** succeeds up to difficulty **level {success_level}**.\n'
-            roll_summary = f'`Roll: {final_roll} (raw {raw_roll} + bonus {bonus})`\n'
-            utilized = f'`Success Level: {success_level} (roll {final_roll // 3} + effort {effort} + assets {assets} + shifts {shift})`' 
-            await message.channel.send(succeeds + roll_summary + utilized)
-
-        if router('/register', '/rename'):
-            character_name = ' '.join(message.content.split()[1:])
-            author = str(message.author)
-            self.characters[author] = character_name
-            self.save_characters()
-            await message.channel.send(f'**{author}** registered as **{character_name}**.')
-
-        if router('/deregister'):
-            author = str(message.author)
-            character = self.characters.get(author)
-            if character:
-                del self.characters[author]
-                self.save_characters()
-                await message.channel.send(f'**{author}** no longer registered as **{character}**.')
+        if command('/name'):
+            if message.content == '/name':
+                await self.report_name(player, name, message)
             else:
-                await message.channel.send(f'No character registered to **{author}**.')
+                await self.add_name(player, name, message)
+
+        if command('/no-name'):
+            await self.remove_name(player, message)
+
+        if command('/pm'):
+            await message.author.send('heyo')
 
 
 if __name__ == "__main__":
