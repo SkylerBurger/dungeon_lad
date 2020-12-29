@@ -98,13 +98,13 @@ class CypherSystem(commands.Cog):
         words = content.split()
         for index, word in enumerate(words):
             word = word.lower()
-            if word == 'effort':
+            if word == 'effort' or word == 'e':
                 effort = int(words[index + 1])
-            if word == 'asset' or word == 'assets':
+            if word == 'asset' or word == 'assets' or word == 'a':
                 assets = int(words[index + 1])
-            if word == 'bonus' or word == 'bonuses':
+            if word == 'bonus' or word == 'bonuses' or word == 'b':
                 bonus = int(words[index + 1])
-            if word == 'shift' or word == 'shifts':
+            if word == 'shift' or word == 'shifts' or word == 's':
                 shift = int(words[index + 1])
 
         return effort, assets, bonus, shift
