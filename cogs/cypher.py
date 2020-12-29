@@ -32,9 +32,16 @@ class CypherSystem(commands.Cog):
 
         effort, assets, bonus, shift = self.parse_cypher(ctx.message.content)
 
-        if bonus > 2 or assets > 2:
-            await ctx.message.channel.send('Neither bonuses nor assets can exceed 2')
+        if bonus > 2:
+            await ctx.message.channel.send('Applied bonuses cannot exceed 2')
             return
+        elif assets > 2:
+            await ctx.message.channel.send('Applied assets cannot exceed 2')
+            return
+        elif effort > 6:
+            await ctx.message.channel.send('Applied effort cannot exceed 6')
+            return
+
         raw_roll = self.roll_d20()
         final_roll = raw_roll + bonus
         success_level = self.calculate_success(final_roll, effort, assets, shift)
@@ -91,13 +98,13 @@ class CypherSystem(commands.Cog):
         words = content.split()
         for index, word in enumerate(words):
             word = word.lower()
-            if word == 'effort':
+            if word == 'effort' or word == 'e':
                 effort = int(words[index + 1])
-            if word == 'asset' or word == 'assets':
+            if word == 'asset' or word == 'assets' or word == 'a':
                 assets = int(words[index + 1])
-            if word == 'bonus' or word == 'bonuses':
+            if word == 'bonus' or word == 'bonuses' or word == 'b':
                 bonus = int(words[index + 1])
-            if word == 'shift' or word == 'shifts':
+            if word == 'shift' or word == 'shifts' or word == 's':
                 shift = int(words[index + 1])
 
         return effort, assets, bonus, shift
