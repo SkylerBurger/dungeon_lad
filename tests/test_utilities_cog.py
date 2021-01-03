@@ -1,4 +1,5 @@
 from unittest.mock import Mock
+import json
 
 import pytest
 
@@ -18,7 +19,29 @@ def ctx():
     context.message.author = 'Skybur#5745'
     return context
 
-def test_get_player_and_character(util, ctx):
+@pytest.fixture
+def characters():
+    with open('tests/test_characters.json', 'w') as file:
+        json.dump('{"Skybur#5745": "Rune Amon"}', file)
+
+def test_get_player_and_character(util, ctx, characters):
     expected = ('Skybur#5745', 'Rune Amon')
     actual = util.get_player_and_character(ctx)
+    assert actual == expected
+
+def test_save_characters(util):
+    util.client.characters = {
+        'Skybur#5745': 'Felix the Cat'
+    }
+    util.save_characters()
+    with open('tests/test_characters.json') as file:
+        actual = file.readlines()[0]
+    with open('tests/test_characters.json', 'w') as file:
+        character_dict = {
+            'Skybur#5745': 'Rune Amon'
+        }
+        json.dump(character_dict, file)
+
+    expected = '{"Skybur#5745": "Felix the Cat"}'
+
     assert actual == expected
