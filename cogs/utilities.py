@@ -4,14 +4,15 @@ from discord.ext import commands
 
 
 class Utilities(commands.Cog):
-    def __init__(self, client):
+    def __init__(self, client, characters_filepath='characters.json'):
         """Instantiates a Utilities object.
 
         Args:
             client (discord.ext.commands.Bot): The bot the Class/Cog is being added to.
         """
         self.client = client
-        with open('characters.json') as file:
+        self.characters_filepath = characters_filepath
+        with open(characters_filepath) as file:
             self.client.characters = json.load(file)
 
     @commands.Cog.listener()
@@ -60,7 +61,7 @@ class Utilities(commands.Cog):
     def save_characters(self):
         """Saves the current state of the characters dict into the 'characters.json' file.
         """
-        with open('characters.json', 'w') as file:
+        with open(self.characters_filepath, 'w') as file:
             json.dump(self.client.characters, file)
 
     async def add_name(self, player, ctx):
