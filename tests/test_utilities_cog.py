@@ -1,4 +1,5 @@
-from unittest.mock import Mock
+from unittest.mock import AsyncMock
+
 import json
 
 import pytest
@@ -15,7 +16,7 @@ def util():
 
 @pytest.fixture
 def ctx():
-    context = Mock()
+    context = AsyncMock()
     context.message.author = 'Skybur#5745'
     return context
 
@@ -45,3 +46,13 @@ def test_save_characters(util):
     expected = '{"Skybur#5745": "Felix the Cat"}'
 
     assert actual == expected
+
+@pytest.mark.asyncio
+async def test_report_name(util, ctx):
+    await util.report_name('Skybur#5745', 'Rune Amon', ctx)
+    ctx.message.channel.send.assert_called_once_with('**Skybur** is registered as **Rune Amon**')
+
+@pytest.mark.asyncio
+async def test_report_no_name(util, ctx):
+    await util.report_name('Skybur#5745', 'Skybur', ctx)
+    ctx.message.channel.send.assert_called_once_with('**Skybur** does not have a character name registered')
