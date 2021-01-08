@@ -8,10 +8,11 @@ class CypherSystem(commands.Cog):
         """Instantiates a CypherSystem object.
 
         Args:
-            client (discord.ext.commands.Bot): The bot the Class/Cog is being added to.
+            client (discord.ext.commands.Bot): The bot the Class/Cog is being
+                added to.
         """
         self.client = client
-    
+
     @commands.command()
     async def cy(self, ctx):
         """Calculates the success level of a cypher system task.
@@ -28,33 +29,44 @@ class CypherSystem(commands.Cog):
         """
         player = str(ctx.message.author)
         name = player[:-5]
-        name = self.client.characters.get(player, player[:-5]);
+        name = self.client.characters.get(player, player[:-5])
 
         effort, assets, bonus, shift = self.parse_cypher(ctx.message.content)
 
+        message = ''
+        error = False
         if bonus > 2:
-            await ctx.message.channel.send('Applied bonuses cannot exceed 2')
-            return
+            message = 'Applied bonuses cannot exceed 2'
+            error = True
         elif assets > 2:
-            await ctx.message.channel.send('Applied assets cannot exceed 2')
-            return
+            message = 'Applied assets cannot exceed 2'
+            error = True
         elif effort > 6:
-            await ctx.message.channel.send('Applied effort cannot exceed 6')
+            message = 'Applied effort cannot exceed 6'
+            error = True
+        if error:
+            await ctx.message.channel.send(message)
             return
 
         raw_roll = self.roll_d20()
         final_roll = raw_roll + bonus
-        success_level = self.calculate_success(final_roll, effort, assets, shift)
-        succeeds = f'**{name}** succeeds up to difficulty **level {success_level}**\n'
-        roll_summary = f'`Roll: {final_roll} (raw {raw_roll} + bonus {bonus})`\n'
-        utilized = f'`Success Level: {success_level} (roll {final_roll // 3} + effort {effort} + assets {assets} + shifts {shift})`' 
+        success_level = self.calculate_success(final_roll, effort, assets,
+                                               shift)
+        succeeds = (f'**{name}** succeeds up to difficulty '
+                    f'**level {success_level}**\n')
+        roll_summary = (f'`Roll: {final_roll} '
+                        f'(raw {raw_roll} + bonus {bonus})`\n')
+        utilized = (f'`Success Level: {success_level} '
+                    f'(roll {final_roll // 3} + effort {effort} + '
+                    f'assets {assets} + shifts {shift})`')
         await ctx.message.channel.send(succeeds + roll_summary + utilized)
 
     def roll_d20(self):
         """Simulates rolling a d20 die.
 
         Returns:
-            (int): An integer between 1-20 (inclusive) representing the roll of the die.
+            (int): An integer between 1-20 (inclusive) representing the roll
+                of the die.
         """
         return random.randint(1, 20)
 
@@ -64,16 +76,20 @@ class CypherSystem(commands.Cog):
         Args:
             roll (int): Represents the roll total, raw roll + any bonuses.
             effort (int): Represents the level(s) of effort used on the task.
-            assets (int): Represents the number of assets available for the task.
-            shift (int): Represents the number of shifts available for the task.
+            assets (int): Represents the number of assets available for the
+                task.
+            shift (int): Represents the number of shifts available for the
+                task.
 
         Returns:
-            success_level (int): Represents the success level achieved for a task.
+            success_level (int): Represents the success level achieved for a
+                task.
         """
         success_level = roll // 3
         success_level += effort
         success_level += assets
-        # Double check if you need to confirm that success_level is <= 10 before adding in the shift 
+        # Double check if you need to confirm that success_level is <= 10
+        # before adding in the shift
         success_level += shift
 
         return success_level
@@ -82,14 +98,19 @@ class CypherSystem(commands.Cog):
         """Parses a Cypher System command received by the bot.
 
         Args:
-            content (str): The text content of the message the bot received with the command.
+            content (str): The text content of the message the bot received
+                with the command.
 
         Returns:
             tuple(effort, assets, bonus, shift):
-                effort (int): Represents the intended level(s) of effort to apply to the task.
-                assets (int): Represents the number of assets available for the task.
-                bonus  (int): Represents the number of bonuses to apply to the roll.
-                shift (int): Represents the number of shifts to apply to the task.
+                effort (int): Represents the intended level(s) of effort to
+                    apply to the task.
+                assets (int): Represents the number of assets available for
+                    the task.
+                bonus  (int): Represents the number of bonuses to apply to the
+                    roll.
+                shift (int): Represents the number of shifts to apply to the
+                    task.
         """
         effort = 0
         assets = 0
