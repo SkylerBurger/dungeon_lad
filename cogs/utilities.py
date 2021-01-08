@@ -8,7 +8,8 @@ class Utilities(commands.Cog):
         """Instantiates a Utilities object.
 
         Args:
-            client (discord.ext.commands.Bot): The bot the Class/Cog is being added to.
+            client (discord.ext.commands.Bot): The bot the Class/Cog is being
+                added to.
         """
         self.client = client
         self.characters_filepath = characters_filepath
@@ -27,14 +28,17 @@ class Utilities(commands.Cog):
 
         Uses:
             /name - Will report back your character name, if one is registered.
-            /name <character_name> - Will assign <character_name> to your account.
+            /name <character_name> - Will assign <character_name> to your
+                account.
 
         Examples:
             /name Rune Amon - Will set my name to 'Rune Amon'
-            /name - Will report back that my current character name is 'Rune Amon'
+            /name - Will report back that my current character name is 'Rune
+                Amon'
 
         Notes:
-            See /noname if you wish to remove your character name without setting a new one.
+            See /noname if you wish to remove your character name without
+                setting a new one.
         """
         player, character = self.get_player_and_character(ctx)
         if ctx.message.content == '/name':
@@ -46,12 +50,15 @@ class Utilities(commands.Cog):
         """Extracts the player's username and character name.
 
         Args:
-            ctx (discord.Context): An object containing information regarding the context in which the command was issued.
+            ctx (discord.Context): An object containing information regarding
+                the context in which the command was issued.
 
         Returns:
             tuple(player, name):
-                player (str): Represents the username of the player that issued the command.
-                name (str): Represents the character name of the player that issued the command.
+                player (str): Represents the username of the player that
+                    issued the command.
+                name (str): Represents the character name of the player that
+                    issued the command.
         """
         player = str(ctx.message.author)
         character = self.client.characters.get(player, player[:-5])
@@ -59,35 +66,44 @@ class Utilities(commands.Cog):
         return player, character
 
     def save_characters(self):
-        """Saves the current state of the characters dict into the 'characters.json' file.
+        """Saves the current state of the characters dict into the
+            'characters.json' file.
         """
         with open(self.characters_filepath, 'w') as file:
             json.dump(self.client.characters, file)
 
     async def add_name(self, player, ctx):
-        """Registers a given character name to a player in the characters dict.
+        """Registers a given character name to a player in the characters
+            dict.
 
         Args:
             player (str): The username of the player issuing the command.
-            ctx (discord.Context): An object containing information regarding the context in which the command was issued. 
+            ctx (discord.Context): An object containing information regarding
+                the context in which the command was issued.
         """
         character = ' '.join(ctx.message.content.split()[1:])
         self.client.characters[player] = character
         self.save_characters()
-        await ctx.message.channel.send(f'**{player[:-5]}** registered as **{character}**')
+        message = f'**{player[:-5]}** registered as **{character}**'
+        await ctx.message.channel.send(message)
 
     async def report_name(self, player, character, ctx):
-        """Reports the current character name registered to the player issuing the command.
+        """Reports the current character name registered to the player issuing
+            the command.
 
         Args:
             player (str): The username of the player issuing the command.
-            character (str): The character name associated with the player issuing the command.
-            ctx (discord.Context): An object containing information regarding the context in which the command was issued.
+            character (str): The character name associated with the player
+                issuing the command.
+            ctx (discord.Context): An object containing information regarding
+                the context in which the command was issued.
         """
         if character == player[:-5]:
-            await ctx.message.channel.send(f'**{character}** does not have a character name registered')
+            message = (f'**{character}** '
+                       'does not have a character name registered')
         else:
-            await ctx.message.channel.send(f'**{player[:-5]}** is registered as **{character}**')
+            message = f'**{player[:-5]}** is registered as **{character}**'
+        await ctx.message.channel.send(message)
 
     @commands.command()
     async def noname(self, ctx):
@@ -101,15 +117,17 @@ class Utilities(commands.Cog):
         if character:
             del self.client.characters[player]
             self.save_characters()
-            await ctx.message.channel.send(f'**{player}** no longer registered as **{character}**')
+            message = (f'**{player}** '
+                       'no longer registered as **{character}**')
         else:
-            await ctx.message.channel.send(f'No character registered to **{player}**')
+            message = f'No character registered to **{player}**'
+
+        await ctx.message.channel.send(message)
 
     # @ commands.command()
     # async def roll(self, ctx):
     #     player, character = self.get_player_and_character(ctx)
     #     await ctx.message.channel.send(ctx.message.content)
-
 
 
 def setup(client):
