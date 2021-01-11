@@ -2,6 +2,8 @@
 
 A Discord bot for assisting with tabletop RPGs.
 
+Invite **dungeon_lad** to your server by clicking on the following link --> **[Add Bot to Server](https://discord.com/api/oauth2/authorize?client_id=791079325420093460&permissions=519232&scope=bot)**
+
 ## Cogs
 
 Cogs are Python classes that can be separately loaded into the bot. Each Cog contains related functionality in the form of commands.
