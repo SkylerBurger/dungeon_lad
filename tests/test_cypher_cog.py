@@ -36,9 +36,8 @@ def test_parse_cypher_variants(cypher):
     # Out of order
     actuals.append(cypher.parse_cypher('/cy bonus 1 effort 2 asset 1 shift 1'))
     # With plurals
-    actuals.append(cypher.parse_cypher(
-        '/cy effort 2 assets 1 bonuses 1 shifts 1'
-    ))
+    actuals.append(cypher.parse_cypher('/cy effort 2 assets 1 bonuses 1 '
+                                       'shifts 1'))
     # With shorthand
     actuals.append(cypher.parse_cypher('/cy e 2 a 1 b 1 s 1'))
     assert all([actual == expected for actual in actuals])
